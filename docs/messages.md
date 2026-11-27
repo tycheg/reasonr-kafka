@@ -1,0 +1,5 @@
+# Messages
+
+A message is CloudEvents 1.0 in binary mode: the value is the arguments in canonical JSON, the attributes are `ce_*` headers. On the bus the record key is the id of the entity or of the notification recipient, so the events of one entity stay in order; `ce_id` is `{tenant}/{position}/{number}` and does not change on a retry. A request record has the idempotency key as its key and `ce_id`, `ce_type` is `{System}.{request}`, the extensions are `tenant`, `attempt` and `deadline`, and the body is the arguments without `timeout`; the integration service reads the record and retries the system call itself.
+
+Topics are derived from the models: `reasonrd topics --config engine.yaml --model <module> [--format json]` lists them without connecting to the broker. At startup `reasonrd` checks that every topic exists and does not start without them; `reasonrd --test` creates the missing ones. While the broker or a topic is unavailable, the bus cursor stays and no event is lost; a request waits for its topic.
